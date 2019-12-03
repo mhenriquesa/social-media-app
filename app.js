@@ -1,7 +1,7 @@
-
 const express = require('express') // *1
 const app = express()
 
+app.use(express.static('public'))
 app.set('views', 'views')
 app.set('view engine', 'ejs')
 
