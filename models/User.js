@@ -1,10 +1,12 @@
 const validator = require('validator')
+const usersCollection = require('../db').collection('users')
 //------------------------------------
 
 let User = function (data) {
     this.data = data
     this.errors =[]
 }
+
 User.prototype.cleanUp = function () {
     if (typeof(this.data.username) != 'string') {this.data.username = ''}
     if (typeof(this.data.email) != 'string') {this.data.email = ''}
@@ -20,10 +22,14 @@ User.prototype.cleanUp = function () {
 
 User.prototype.register = function () {
     // Step 1: Validate data
-    this.clenUp()
+    this.cleanUp()
     this.validate()
     //Step 2: Only if there are no validatation erros
     // then save the user data into a database
+    if (!this.errors.length) {
+        usersCollection.insertOne(this.data)
+    }
+
 }
 
 User.prototype.validate = function () {
