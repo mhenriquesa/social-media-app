@@ -7,6 +7,17 @@ let User = function (data) {
     this.errors =[]
 }
 
+User.prototype.login = function (callback) {
+    this.cleanUp()
+    usersCollection.findOne({username: this.data.username}, (err, attemptedUser_) => {
+        if (attemptedUser_ && attemptedUser_.password == this.data.password) {
+            callback('Congrats')
+        } else {
+            callback("invalid user/pass")
+        }
+    })
+}
+
 User.prototype.cleanUp = function () {
     if (typeof(this.data.username) != 'string') {this.data.username = ''}
     if (typeof(this.data.email) != 'string') {this.data.email = ''}
@@ -45,5 +56,5 @@ User.prototype.validate = function () {
 }
 
 
-
+//----------Exports--------------------------
 module.exports = User
