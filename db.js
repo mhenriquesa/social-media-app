@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 const mongodb = require('mongodb')
-
+//--------------------------------
 dotenv.config()
 
 //Estabelecer conexão com o mongodb e exportar acesso ao database

@@ -1,23 +1,49 @@
 const validator = require('validator')
 const usersCollection = require('../db').collection('users')
-//------------------------------------
 
+
+//-----------Constructors-------------------------
 let User = function (data) {
     this.data = data
     this.errors =[]
 }
 
-User.prototype.login = function (callback) {
-    this.cleanUp()
+//-------------Prototypes---------------------------
+User.prototype.login = function () {
+    return new Promise((resolve, reject) => {
+        this.cleanUp()
+        usersCollection.findOne({username: this.data.username}, (err, attemptedUser_) => {
+        if (attemptedUser_ && attemptedUser_.password == this.data.password) {
+            resolve('Congrats')
+        } else {
+            reject("invalid user/pass")
+        }
+    })
+    })
+}
+    /*this.cleanUp()
     usersCollection.findOne({username: this.data.username}, (err, attemptedUser_) => {
         if (attemptedUser_ && attemptedUser_.password == this.data.password) {
             callback('Congrats')
         } else {
             callback("invalid user/pass")
         }
-    })
+    })*/
+
+
+User.prototype.register = function () {
+    // Step 1: Validate data
+    this.cleanUp()
+    this.validate()
+    //Step 2: Only if there are no validatation erros
+    // then save the user data into a database
+    if (!this.errors.length) {
+        usersCollection.insertOne(this.data)
+    }
+
 }
 
+//-------------Cleaning up and Validation Data-----------------
 User.prototype.cleanUp = function () {
     if (typeof(this.data.username) != 'string') {this.data.username = ''}
     if (typeof(this.data.email) != 'string') {this.data.email = ''}
@@ -31,17 +57,6 @@ User.prototype.cleanUp = function () {
     }
 }
 
-User.prototype.register = function () {
-    // Step 1: Validate data
-    this.cleanUp()
-    this.validate()
-    //Step 2: Only if there are no validatation erros
-    // then save the user data into a database
-    if (!this.errors.length) {
-        usersCollection.insertOne(this.data)
-    }
-
-}
 
 User.prototype.validate = function () {
     if (this.data.username == "") {this.errors.push('Voce deve ter um username')}

@@ -1,7 +1,7 @@
 const express = require('express')
-const app = express()
 const router = require('./router')
 //---------------------------------------------------------
+const app = express()
 
 app.use(express.urlencoded({extended: false}))  // acesso a dados do user pelo body do elemento
 app.use(express.json())
