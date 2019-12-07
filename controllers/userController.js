@@ -3,8 +3,7 @@ const User = require('../models/User')
 
 exports.login = function (req, res) {
     let user = new User(req.body)
-    user.login()
-    .then(function (result_) {
+    user.login().then(function (result_) {
         res.send(result_)
     })
     .catch(function (err) {
