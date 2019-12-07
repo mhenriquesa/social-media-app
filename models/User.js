@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 const validator = require('validator')
-const usersCollection = require('../db').collection('users')
+const usersCollection = require('../db').db().collection('users')
 
 
 //-----------Constructors-------------------------
