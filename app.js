@@ -2,6 +2,7 @@ const express = require('express')
 const router = require('./router')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
+const flash = require('connect-flash')
 //----Variables------------------------------
 const app = express()
 let sessionOptions = session({
@@ -19,6 +20,7 @@ Se sessionOptions for para baixo de router, quebra o app.
 Acredito que router precisa ser o ultimo a ser carregado.
 */
 app.use(sessionOptions)
+app.use(flash())
 app.use(express.urlencoded({extended: false}))  // acesso a dados do user pelo body do elemento
 app.use(express.json())
 app.use(express.static('public'))              //permitir acesso a pasta public
