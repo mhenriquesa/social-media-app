@@ -3,8 +3,9 @@ const router = require('./router')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const flash = require('connect-flash')
-//----Variables------------------------------
+
 const app = express()
+
 let sessionOptions = session({
     secret: 'woeifowiejf',
     store: new MongoStore({client: require('./db')}),
@@ -25,7 +26,6 @@ app.use(express.urlencoded({extended: false}))  // acesso a dados do user pelo b
 app.use(express.json())
 app.use(express.static('public'))              //permitir acesso a pasta public
 app.use('/', router) 
-
 
 app.set('views', 'views')
 app.set('view engine', 'ejs')                   

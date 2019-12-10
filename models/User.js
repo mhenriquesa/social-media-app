@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 const validator = require('validator')
 const usersCollection = require('../db').db().collection('users')
+const md5 = require('md5')
 
 
 //-----------Constructors-------------------------
@@ -15,6 +16,8 @@ User.prototype.login = function () {
         this.cleanUp()
         usersCollection.findOne({username: this.data.username}).then((attemptedUser) => {
             if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
+                this.data = attemptedUser
+                this.getAvatar()
                 resolve('Congrats')
             } else {
                 reject("User ou pass invalid")
@@ -37,15 +40,17 @@ User.prototype.register = async function () {
             let salt = bcrypt.genSaltSync(10)
             this.data.password = bcrypt.hashSync(this.data.password, salt)
             usersCollection.insertOne(this.data)
+            this.getAvatar()
             resolve()
         } else {
             reject(this.errors)
-
         }
-        
-    
     })
 }
+
+User.prototype.getAvatar = function () {
+    this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`
+    }
 
 //-------------Cleaning up and Validation Data-----------------
 User.prototype.cleanUp = function () {
