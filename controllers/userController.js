@@ -38,6 +38,17 @@ exports.register = function(req, res) {
   })
 }
 
+exports.userMustBeLoggedIn = function (req, res, next) {
+  if (req.session.user) {
+    next()
+  } else {
+    req.flash('errors', "Você deve estar logado para usar esta função")
+    req.session.save(function () {
+      res.redirect('/')
+    })
+  }
+}
+
 exports.home = function(req, res) {
   if (req.session.user) {
     res.render('home-dashboard', {username: req.session.user.username, avatar: req.session.user.avatar})
