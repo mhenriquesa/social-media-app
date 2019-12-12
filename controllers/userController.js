@@ -1,5 +1,15 @@
 const User = require('../models/User')
 
+//------- Redirecionamento principal Home
+exports.home = function(req, res) {
+  if (req.session.user) {
+    res.render('home-dashboard', {postCreated: req.flash('postCreated')})
+  } else {
+    res.render('home-guest', {errors: req.flash('errors'), regErrors: req.flash('regErrors')})
+  }
+}
+
+//------- Principais ações do usuário
 exports.login = function(req, res) {
   let user = new User(req.body)
   user.login().then(function(result) {
@@ -46,13 +56,5 @@ exports.userMustBeLoggedIn = function (req, res, next) {
     req.session.save(function () {
       res.redirect('/')
     })
-  }
-}
-
-exports.home = function(req, res) {
-  if (req.session.user) {
-    res.render('home-dashboard', {username: req.session.user.username, avatar: req.session.user.avatar})
-  } else {
-    res.render('home-guest', {errors: req.flash('errors'), regErrors: req.flash('regErrors')})
   }
 }
