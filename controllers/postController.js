@@ -22,3 +22,12 @@ exports.viewCreateScreen = function(req, res) {
       })
   }
 
+  exports.viewSingle = async function (req, res) {
+    try {
+      let post = await Post.findSingleByID(req.params.id)
+      res.render('single-post-screen', {post: post})
+    } catch {
+      res.send('404')
+    }
+  }
+

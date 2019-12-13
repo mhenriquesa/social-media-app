@@ -1,3 +1,7 @@
+/*
+Configuração principal do servidor Express
+*/
+
 const express = require('express')
 const router = require('./router')
 const session = require('express-session')

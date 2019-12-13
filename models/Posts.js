@@ -1,4 +1,4 @@
-const usersCollection = require('../db').db().collection('posts')
+const postsCollection = require('../db').db().collection('posts')
 const ObjectID = require('mongodb').ObjectID
 
 
@@ -19,7 +19,7 @@ Post.prototype.create = function () {
         if (!this.errors.length) {
             
             //insertOne returns a Promise. Podemos usar .then().catch() para assegurar conclusao do DB
-            usersCollection.insertOne(this.data).then(() => {
+            postsCollection.insertOne(this.data).then(() => {
                 resolve('Post criado com sucesso')
             }).catch(() => {
                 this.errors.push('Por favor, tente novamente mais tarde')
@@ -50,5 +50,21 @@ Post.prototype.validate = function () {
         // ATENÇÃO: INSERIR PROTEÇÃO CONTRA HTML SCRIPTS (todoApp)
        
     }
+
+Post.findSingleByID = function (id) {
+    return new Promise(async (resolve, reject) => {
+        if (typeof(id) != 'string' || !ObjectID.isValid(id)) {
+            reject()
+            return
+        }
+        let post = await postsCollection.findOne({_id: new ObjectID(id)})
+        if (post) {
+            resolve(post)
+        } else {
+            reject('erro 2')
+        }
+    })
+ 
+}
 
 module.exports = Post
