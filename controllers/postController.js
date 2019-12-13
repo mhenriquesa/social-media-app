@@ -9,7 +9,7 @@ exports.viewCreateScreen = function(req, res) {
   }
 
   exports.create = function (req, res) {
-    let post = new Post(req.body)
+    let post = new Post(req.body, req.session.user._id)
     post.create()
     .then(function (success) {
       req.flash('postCreated', success)

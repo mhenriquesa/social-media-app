@@ -1,12 +1,14 @@
-const validator = require('validator')
 const usersCollection = require('../db').db().collection('posts')
-const md5 = require('md5')
+const ObjectID = require('mongodb').ObjectID
+
 
 //----Constructors
 
-let Post = function (data) {
+let Post = function (data, userId) {
     this.data = data
     this.errors = []
+    this.userId = userId
+    
 }
 
 // Prototypes
@@ -15,9 +17,14 @@ Post.prototype.create = function () {
         this.cleanUp()
         this.validate()
         if (!this.errors.length) {
-            //Save post into DB
-            usersCollection.insertOne(this.data)
-            resolve('Post criado com sucesso')
+            
+            //insertOne returns a Promise. Podemos usar .then().catch() para assegurar conclusao do DB
+            usersCollection.insertOne(this.data).then(() => {
+                resolve('Post criado com sucesso')
+            }).catch(() => {
+                this.errors.push('Por favor, tente novamente mais tarde')
+                reject(this.errors)
+            })
         } else {
             reject(this.errors)
         }
@@ -32,9 +39,9 @@ Post.prototype.cleanUp = function () {
     this.data = {
         title: this.data.title.trim(),
         body: this.data.body.trim(),
-        createdDate: new Date()
+        createdDate: new Date(),
+        author: ObjectID(this.userId)
     }
-
 }
 
 Post.prototype.validate = function () {
