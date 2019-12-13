@@ -10,6 +10,9 @@ router.post('/register', userController.register)
 router.post('/login', userController.login)
 router.post('/logout', userController.logout)
 
+//Profile relaed routes
+router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen)
+
 // Post related routes
 router.get('/create-post', userController.userMustBeLoggedIn, postController.viewCreateScreen)
 router.post('/create-post', userController.userMustBeLoggedIn, postController.create)

@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const Post = require('../models/Posts')
 
 //------- Redirecionamento principal Home
 exports.home = function(req, res) {
@@ -57,4 +58,29 @@ exports.userMustBeLoggedIn = function (req, res, next) {
       res.redirect('/')
     })
   }
+}
+
+exports.ifUserExists = function (req, res, next) {
+  User.findByUsername(req.params.username).then(function (userDocument) {
+    req.profileUsername = userDocument
+    next()
+  }).catch(function () {
+    res.render('404')
+  })
+}
+
+exports.profilePostsScreen = function (req, res) {
+  //Ask our Post models for post by Author ID
+  Post.findByAuthorID(req.profileUsername._id)
+  .then(function (posts) {
+    res.render('profile', {
+      profileUsername: req.profileUsername.username,
+      profileAvatar: req.profileUsername.avatar,
+      posts: posts
+    })
+  })
+  .catch(function () {
+    res.render('404')
+  })
+
 }

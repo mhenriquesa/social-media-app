@@ -1,13 +1,14 @@
 const postsCollection = require('../db').db().collection('posts')
 const ObjectID = require('mongodb').ObjectID
+const User = require('./User')
 
 
 //----Constructors
 
-let Post = function (data, userId) {
+let Post = function (data, userid) {
     this.data = data
     this.errors = []
-    this.userId = userId
+    this.userid = userid
     
 }
 
@@ -40,7 +41,7 @@ Post.prototype.cleanUp = function () {
         title: this.data.title.trim(),
         body: this.data.body.trim(),
         createdDate: new Date(),
-        author: ObjectID(this.userId)
+        author: ObjectID(this.userid)
     }
 }
 
@@ -51,20 +52,55 @@ Post.prototype.validate = function () {
        
     }
 
+Post.reusablePostQuery = function (uniqueOperations) {
+    return new Promise(async function (resolve, reject) {
+        let aggOperations = uniqueOperations.concat([
+            {$lookup: {from: "users", localField: 'author', foreignField: '_id', as: 'authorDocument'}},
+            {$project: {
+                title: 1,
+                body: 1,
+                createdDate: 1,
+                author: {$arrayElemAt: ['$authorDocument', 0]}
+            }}
+        ])
+        
+        let posts = await postsCollection.aggregate(aggOperations).toArray()
+
+        //Clean UP athor property in each post object
+        posts = posts.map(function(post) {
+            post.author = {
+                username: post.author.username,
+                avatar: new User(post.author, true).avatar
+            }
+            return post
+        }) 
+        resolve(posts)
+    })
+}
+
 Post.findSingleByID = function (id) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async function (resolve, reject) {
         if (typeof(id) != 'string' || !ObjectID.isValid(id)) {
             reject()
             return
         }
-        let post = await postsCollection.findOne({_id: new ObjectID(id)})
-        if (post) {
-            resolve(post)
+        let posts = await Post.reusablePostQuery([
+            {match: {_id: new ObjectID(id)}}
+        ])
+        if (posts.length) {
+            console.log(posts)
+            resolve(posts[0])
         } else {
-            reject('erro 2')
+            reject()
         }
     })
- 
+}
+
+Post.findByAuthorID = function (authorId) {
+    return Post.reusablePostQuery([
+        {$match: {author: authorId}},
+        {$sort: {createdDate: -1}} // 1 Ascendente / -1 Descendente
+    ])
 }
 
 module.exports = Post

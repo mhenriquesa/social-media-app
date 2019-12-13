@@ -5,9 +5,11 @@ const md5 = require('md5')
 
 
 //-----------Constructors-------------------------
-let User = function (data) {
+let User = function (data, getAvatar) {
     this.data = data
     this.errors =[]
+    if (getAvatar == undefined) {getAvatar = false}
+    if (getAvatar) {this.getAvatar()}
 }
 
 //-------------Prototypes---------------------------
@@ -91,10 +93,28 @@ User.prototype.validate = function () {
     })
 }
 
-//--- Notas -------
-/*
-await so pode ser usado se a função retornar uma promise e se estiver dentro de uma async function
-*/
+User.findByUsername = function (username) {
+    return new Promise(function (resolve, reject) {
+        if (typeof(username) != 'string') {
+            reject()
+            return
+        }
+        usersCollection.findOne({username: username}).then(function (userDoc) {
+            if (userDoc) {
+                userDoc = new User(userDoc, true)
+                userDoc = {
+                    _id: userDoc.data._id,
+                    username: userDoc.data.username,
+                    avatar: userDoc.avatar
+                }
+                resolve(userDoc)
+            } else {
+                reject('Try again later')
+            }
+        }).catch(function () {
+            reject('404')
+        })
+    })
+}
 
-//----------Exports--------------------------
 module.exports = User
