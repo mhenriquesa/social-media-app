@@ -78,14 +78,14 @@ Post.reusablePostQuery = function (uniqueOperations) {
     })
 }
 
-Post.findSingleByID = function (id) {
+Post.findSingleById = function (id) {
     return new Promise(async function (resolve, reject) {
         if (typeof(id) != 'string' || !ObjectID.isValid(id)) {
             reject()
             return
         }
         let posts = await Post.reusablePostQuery([
-            {match: {_id: new ObjectID(id)}}
+            {$match: {_id: new ObjectID(id)}}
         ])
         if (posts.length) {
             console.log(posts)
@@ -96,7 +96,7 @@ Post.findSingleByID = function (id) {
     })
 }
 
-Post.findByAuthorID = function (authorId) {
+Post.findByAuthorId = function (authorId) {
     return Post.reusablePostQuery([
         {$match: {author: authorId}},
         {$sort: {createdDate: -1}} // 1 Ascendente / -1 Descendente
