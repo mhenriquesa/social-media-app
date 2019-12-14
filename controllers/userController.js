@@ -4,7 +4,8 @@ const Post = require('../models/Posts')
 //------- Redirecionamento principal Home
 exports.home = function(req, res) {
   if (req.session.user) {
-    res.render('home-dashboard', {postCreated: req.flash('postCreated')})
+    console.log(req.session.user)
+    res.render('home-dashboard', {postCreated: req.flash('postCreated'), username: req.session.user.username})
   } else {
     res.render('home-guest', {errors: req.flash('errors'), regErrors: req.flash('regErrors')})
   }
