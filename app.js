@@ -32,12 +32,14 @@ app.use(flash())
 app.use(express.urlencoded({extended: false}))  // acesso a dados do user pelo body do elemento
 app.use(express.json())
 app.use(express.static('public'))              //permitir acesso a pasta public
-app.use(function (req, res, next) {  // Permite os EJS templates ter acesso as informações do user quando logado
-    if (req.session.user) {
-        req.visitorId = req.session.user._id
-    } else {
-        req.visitorId = 0
-    }
+
+app.use(function (req, res, next) {  
+    // Make all error and success flash messages available fron all ejs templates
+    res.locals.errors = req.flash('errors')
+    res.locals.success = req.flash('success')
+    // ID do usuario atual disponivel no req object
+    if (req.session.user) {req.visitorId = req.session.user._id} else {req.visitorId = 0}
+    // Permite os EJS templates ter acesso as informações do user quando logado
     res.locals.user = req.session.user
     next()
 })

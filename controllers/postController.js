@@ -41,3 +41,32 @@ exports.viewCreateScreen = function(req, res) {
     }
   }
 
+  exports.edit = function (req, res) {
+    let post = new Post(req.body, req.visitorId, req.params.id)
+    post.update().then((status) => {
+      // Post atualizado
+      // ou usuario tem permissao mas tem erros de validação ao submeter
+      if (status == 'success') {
+        //post foi atualizado
+        req.flash('success', 'Post atualizado')
+        req.session.save(function () {
+          res.redirect(`/post/${req.params.id}/edit`)
+        })
+      } else {
+        post.errors.forEach(function (error) {
+          req.flash('errors', error)
+        })
+        req.session.save(function () {
+          res.redirect(`/post/${req.params.id}/edit`)
+        })
+      }
+
+    }).catch(() => {
+      // um post nao existe 
+      //ou quem requisita nao é o dono
+      req.flash('errors', 'Você não tem permissão para a ação')
+      req.session.save(() => {
+        res.redirect('/')
+      })
+    })
+  }

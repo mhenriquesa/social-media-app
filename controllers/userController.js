@@ -7,7 +7,7 @@ exports.home = function(req, res) {
     console.log(req.session.user)
     res.render('home-dashboard', {postCreated: req.flash('postCreated'), username: req.session.user.username})
   } else {
-    res.render('home-guest', {errors: req.flash('errors'), regErrors: req.flash('regErrors')})
+    res.render('home-guest', {regErrors: req.flash('regErrors')})
   }
 }
 

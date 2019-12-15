@@ -5,14 +5,45 @@ const User = require('./User')
 
 //----Constructors
 
-let Post = function (data, userid) {
+let Post = function (data, userid, requestedPostId) { 
     this.data = data
     this.errors = []
     this.userid = userid
+    this.requestedPostId = requestedPostId
     
 }
 
 // Prototypes
+Post.prototype.update = function () {
+    return new Promise(async (resolve, reject) => {
+        //Encontrar o post e testar se o requrente é owner
+        try {
+            let post = await Post.findSingleById(this.requestedPostId, this.userid)
+            if (post.isVisitorOwner) {
+               let status = await this.actuallyUpdate()
+                resolve(status)
+            } else {
+                reject()
+            }
+        } catch {
+            reject()
+        } 
+    })   
+}
+
+Post.prototype.actuallyUpdate = function () {
+    return new Promise(async (resolve, reject) => {
+        this.cleanUp()
+        this.validate()
+        if (!this.errors.length) {
+            await postsCollection.findOneAndUpdate({_id: new ObjectID(this.requestedPostId)}, {$set: {title: this.data.title, body: this.data.body}})
+            resolve('success')
+        } else {
+            reject('failure')
+        }
+    })
+}
+
 Post.prototype.create = function () {
     return new Promise((resolve, reject) => {
         this.cleanUp()
