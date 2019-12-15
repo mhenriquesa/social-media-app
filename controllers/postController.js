@@ -11,15 +11,14 @@ exports.viewCreateScreen = function(req, res) {
   exports.create = function (req, res) {
     let post = new Post(req.body, req.session.user._id)
     post.create()
-    .then(function (success) {
-      req.flash('postCreated', success)
-      req.session.save(function () {
-        res.redirect('/')
-      })
+    .then(newId => {
+      req.flash('success', 'Post criado com sucesso')
+      req.session.save(() => res.redirect(`/post/${newId}`))
     })
-    .catch(function (errors) {
-       res.send(errors)
-      })
+    .catch(errors => {
+      errors.forEach(error => req.flash('errors', error))
+      req.session.save(() => res.redirect('/create-post'))
+    })
   }
 
   exports.viewSingle = async function (req, res) {
@@ -35,7 +34,14 @@ exports.viewCreateScreen = function(req, res) {
   exports.viewEditScreen = async function (req,res) {
     try {
       let post = await Post.findSingleById(req.params.id)
-      res.render('edit-post', {post: post})
+      console.log(post, req.params)
+      if (post.authorId == req.visitorId) {
+        res.render('edit-post', {post: post})        
+      } else {
+        req.flash('errors', 'Você não tem permissão para a ação')
+        req.session.save(() => res.redirect('/'))
+      }
+
     } catch {
       res.render('404')
     }
@@ -43,30 +49,16 @@ exports.viewCreateScreen = function(req, res) {
 
   exports.edit = function (req, res) {
     let post = new Post(req.body, req.visitorId, req.params.id)
-    post.update().then((status) => {
-      // Post atualizado
-      // ou usuario tem permissao mas tem erros de validação ao submeter
+    post.update().then( status => {
       if (status == 'success') {
-        //post foi atualizado
         req.flash('success', 'Post atualizado')
-        req.session.save(function () {
-          res.redirect(`/post/${req.params.id}/edit`)
-        })
+        req.session.save( () => res.redirect(`/post/${req.params.id}`) ) 
       } else {
-        post.errors.forEach(function (error) {
-          req.flash('errors', error)
-        })
-        req.session.save(function () {
-          res.redirect(`/post/${req.params.id}/edit`)
-        })
+        post.errors.forEach( error => req.flash('errors', error))
+        req.session.save( () => res.redirect(`/post/${req.params.id}/edit`) )
       }
-
-    }).catch(() => {
-      // um post nao existe 
-      //ou quem requisita nao é o dono
+    }).catch( () => {
       req.flash('errors', 'Você não tem permissão para a ação')
-      req.session.save(() => {
-        res.redirect('/')
-      })
+      req.session.save( () => res.redirect('/') )
     })
   }

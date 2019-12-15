@@ -49,10 +49,10 @@ Post.prototype.create = function () {
         this.cleanUp()
         this.validate()
         if (!this.errors.length) {
-            
-            //insertOne returns a Promise. Podemos usar .then().catch() para assegurar conclusao do DB
-            postsCollection.insertOne(this.data).then(() => {
-                resolve('Post criado com sucesso')
+            //insertOne returns a Promise. Podemos usar .then().catch() 
+            //para assegurar conclusao do DB
+            postsCollection.insertOne(this.data).then((info) => {
+                resolve(info.ops[0]._id)
             }).catch(() => {
                 this.errors.push('Por favor, tente novamente mais tarde')
                 reject(this.errors)
