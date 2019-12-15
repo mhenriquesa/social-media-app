@@ -19,6 +19,7 @@ router.post('/create-post', userController.userMustBeLoggedIn, postController.cr
 router.get('/post/:id', postController.viewSingle)
 router.get('/post/:id/edit', userController.userMustBeLoggedIn, postController.viewEditScreen)
 router.post('/post/:id/edit', userController.userMustBeLoggedIn, postController.edit)
+router.post('/post/:id/delete', userController.userMustBeLoggedIn, postController.delete)
 
 
 //---------------------------------------

@@ -1,7 +1,7 @@
 const postsCollection = require('../db').db().collection('posts')
 const ObjectID = require('mongodb').ObjectID
 const User = require('./User')
-
+const sanitize = require('sanitize-html')
 
 //----Constructors
 
@@ -10,10 +10,10 @@ let Post = function (data, userid, requestedPostId) {
     this.errors = []
     this.userid = userid
     this.requestedPostId = requestedPostId
-    
 }
 
-// Prototypes
+// ----- Prototypes
+
 Post.prototype.update = function () {
     return new Promise(async (resolve, reject) => {
         //Encontrar o post e testar se o requrente é owner
@@ -69,24 +69,71 @@ Post.prototype.cleanUp = function () {
     
     // Get rid of any bogus propeties
     this.data = {
-        title: this.data.title.trim(),
-        body: this.data.body.trim(),
+        title: sanitize(this.data.title.trim(), {
+            allowedAttributes: {},
+            allowedTags: []
+        }),
+        body: sanitize(this.data.body.trim(), {
+            allowedAttributes: {},
+            allowedTags: []
+        }),
         createdDate: new Date(),
         author: ObjectID(this.userid)
     }
 }
 
 Post.prototype.validate = function () {
-        if (this.data.title == "") {this.errors.push('O post precisa de um título')}
-        if (this.data.body == "") {this.errors.push('O post precisa de conteúdo')}
+        if (this.data.title == "") this.errors.push('O post precisa de um título')
+        if (this.data.body == "") this.errors.push('O post precisa de conteúdo')
         // ATENÇÃO: INSERIR PROTEÇÃO CONTRA HTML SCRIPTS (todoApp)
        
     }
 
-Post.reusablePostQuery = function (uniqueOperations, visitorId) {
-    return new Promise(async function (resolve, reject) {
+// ------ Methods
+
+Post.delete = function (postIdToDelete, currentUserId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let post = await Post.findSingleById(postIdToDelete, currentUserId)
+            if (post.isVisitorOwner) {
+                await postsCollection.deleteOne({_id: new ObjectID(postIdToDelete)})
+                resolve('success')
+            } else {
+                reject('failure')
+            }
+        } catch {
+            reject('Tente novamete mais tarde')
+        } 
+    })   
+}
+
+Post.findSingleById = (id, visitorId) => {
+    return new Promise(async (resolve, reject) => {
+        if (typeof(id) != 'string' || !ObjectID.isValid(id)) {
+            reject()
+            return
+        }
+        let matchParameter = [{$match: {_id: new ObjectID(id)}}]
+        let posts = await Post.reusablePostQuery(matchParameter, visitorId)
+        if (posts.length) resolve(posts[0])
+        else reject()
+    })
+}
+
+Post.findByAuthorId = authorId => {
+    let matchParameters = [ {$match: {author: authorId}}, {$sort: {createdDate: -1}} ]
+    return Post.reusablePostQuery(matchParameters)
+}
+
+Post.reusablePostQuery = (uniqueOperations, visitorId) => {
+    return new Promise(async (resolve, reject) => {
         let aggOperations = uniqueOperations.concat([
-            {$lookup: {from: "users", localField: 'author', foreignField: '_id', as: 'authorDocument'}},
+            {$lookup: {
+                from: "users", 
+                localField: 'author', 
+                foreignField: '_id', 
+                as: 'authorDocument'}
+            },
             {$project: {
                 title: 1,
                 body: 1,
@@ -99,7 +146,7 @@ Post.reusablePostQuery = function (uniqueOperations, visitorId) {
         let posts = await postsCollection.aggregate(aggOperations).toArray()
 
         //Clean UP athor property in each post object
-        posts = posts.map(function(post) {
+        posts = posts.map( post => {
             post.isVisitorOwner = post.authorId.equals(visitorId)
             post.author = {
                 username: post.author.username,
@@ -111,28 +158,5 @@ Post.reusablePostQuery = function (uniqueOperations, visitorId) {
     })
 }
 
-Post.findSingleById = function (id, visitorId) {
-    return new Promise(async function (resolve, reject) {
-        if (typeof(id) != 'string' || !ObjectID.isValid(id)) {
-            reject()
-            return
-        }
-        let posts = await Post.reusablePostQuery([
-            {$match: {_id: new ObjectID(id)}}
-        ], visitorId)
-        if (posts.length) {
-            resolve(posts[0])
-        } else {
-            reject()
-        }
-    })
-}
-
-Post.findByAuthorId = function (authorId) {
-    return Post.reusablePostQuery([
-        {$match: {author: authorId}},
-        {$sort: {createdDate: -1}} // 1 Ascendente / -1 Descendente
-    ])
-}
 
 module.exports = Post

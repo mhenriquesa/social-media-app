@@ -34,7 +34,6 @@ exports.viewCreateScreen = function(req, res) {
   exports.viewEditScreen = async function (req,res) {
     try {
       let post = await Post.findSingleById(req.params.id)
-      console.log(post, req.params)
       if (post.authorId == req.visitorId) {
         res.render('edit-post', {post: post})        
       } else {
@@ -58,6 +57,18 @@ exports.viewCreateScreen = function(req, res) {
         req.session.save( () => res.redirect(`/post/${req.params.id}/edit`) )
       }
     }).catch( () => {
+      req.flash('errors', 'Você não tem permissão para a ação')
+      req.session.save( () => res.redirect('/') )
+    })
+  }
+
+  exports.delete = (req, res) => {
+    Post.delete(req.params.id, req.visitorId)
+    .then( () => {
+      req.flash('success', 'Post apagado com sucesso')
+      req.session.save( () => res.redirect(`/profile/${req.session.user.username}`) )
+    })
+    .catch( () => {
       req.flash('errors', 'Você não tem permissão para a ação')
       req.session.save( () => res.redirect('/') )
     })
