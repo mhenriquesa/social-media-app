@@ -2,10 +2,10 @@ const dotenv = require('dotenv')
 const mongodb = require('mongodb')
 //--------------------------------
 dotenv.config()
+let accessDb = process.env.CONNECTIONSTRING
+let optionsDb = {useNewUrlParser: true, useUnifiedTopology: true}
 
-//Estabelecer conexão com o mongodb e exportar acesso ao database
-//Importar express() para dentro da função e acionar o listener
-mongodb.connect(process.env.CONNECTIONSTRING, {useNewUrlParser: true, useUnifiedTopology: true}, function (err, client) {
+mongodb.connect(accessDb, optionsDb, (err, client) => {
    module.exports = client
    const app = require('./app')
    app.listen(process.env.PORT)
