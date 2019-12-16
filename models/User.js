@@ -8,8 +8,8 @@ const md5 = require('md5')
 let User = function (data, getAvatar) {
     this.data = data
     this.errors =[]
-    if (getAvatar == undefined) {getAvatar = false}
-    if (getAvatar) {this.getAvatar()}
+    if (getAvatar == undefined) getAvatar = false
+    if (getAvatar) this.getAvatar()
 }
 
 //-------------Prototypes---------------------------
@@ -30,7 +30,7 @@ User.prototype.login = function () {
     })
 }
 
-User.prototype.register = async function () {
+User.prototype.register = async () => {
     return new Promise(async (resolve, reject) => {
         // Step 1: Validate data
         this.cleanUp()
@@ -93,13 +93,14 @@ User.prototype.validate = function () {
     })
 }
 
-User.findByUsername = function (username) {
-    return new Promise(function (resolve, reject) {
+User.findByUsername = username => {
+    return new Promise( (resolve, reject) => {
         if (typeof(username) != 'string') {
             reject()
             return
         }
-        usersCollection.findOne({username: username}).then(function (userDoc) {
+        usersCollection.findOne({username: username})
+        .then( userDoc => {
             if (userDoc) {
                 userDoc = new User(userDoc, true)
                 userDoc = {
@@ -108,12 +109,9 @@ User.findByUsername = function (username) {
                     avatar: userDoc.avatar
                 }
                 resolve(userDoc)
-            } else {
-                reject('Try again later')
-            }
-        }).catch(function () {
-            reject('404')
+            } else reject('Try again later')
         })
+        .catch( () => reject('404') )
     })
 }
 
