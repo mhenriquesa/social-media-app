@@ -14,9 +14,10 @@ router.post('/logout', userController.logout)
 router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen)
 
 // Post related routes
+router.post('/search', postController.search)
+router.get('/post/:id', postController.viewSingle)
 router.get('/create-post', userController.userMustBeLoggedIn, postController.viewCreateScreen)
 router.post('/create-post', userController.userMustBeLoggedIn, postController.create)
-router.get('/post/:id', postController.viewSingle)
 router.get('/post/:id/edit', userController.userMustBeLoggedIn, postController.viewEditScreen)
 router.post('/post/:id/edit', userController.userMustBeLoggedIn, postController.edit)
 router.post('/post/:id/delete', userController.userMustBeLoggedIn, postController.delete)

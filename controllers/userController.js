@@ -36,7 +36,7 @@ exports.register = (req, res) => {
   })
 }
 
-// ---------Tests ----------------------
+// -----------------------
 exports.userMustBeLoggedIn =  (req, res, next) => {
   if (req.session.user) next()
   else {

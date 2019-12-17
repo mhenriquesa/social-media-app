@@ -31,7 +31,7 @@ Post.prototype.update = function () {
     })   
 }
 
-Post.prototype.actuallyUpdate = function () {
+Post.prototype.actuallyUpdate = function () { 
     return new Promise(async (resolve, reject) => {
         this.cleanUp()
         this.validate()
@@ -90,6 +90,15 @@ Post.prototype.validate = function () {
     }
 
 // ------ Methods
+Post.search = searchTerm => {
+    return new Promise (async (resolve, reject) => {
+        if (typeof(searchTerm) == 'string') {
+            let matchSearch = [{$match: { $text: {$search: searchTerm}}}, {$sort: {score: {$meta: 'textScore'}}} ]
+            let posts = await Post.reusablePostQuery(matchSearch)
+            resolve(posts)
+        } else reject()
+    })
+}
 
 Post.delete = function (postIdToDelete, currentUserId) {
     return new Promise(async (resolve, reject) => {
@@ -145,9 +154,10 @@ Post.reusablePostQuery = (uniqueOperations, visitorId) => {
         
         let posts = await postsCollection.aggregate(aggOperations).toArray()
 
-        //Clean UP athor property in each post object
+        //Clean UP author property in each post object
         posts = posts.map( post => {
             post.isVisitorOwner = post.authorId.equals(visitorId)
+            post.authorId = undefined //Para esconder a informação do front-end enviada pelo JSON 
             post.author = {
                 username: post.author.username,
                 avatar: new User(post.author, true).avatar

@@ -1,11 +1,18 @@
 let Post = require('../models/Posts')
 
+exports.search = function (req, res) {
+  Post.search(req.body.searchTerm)
+  .then( posts => res.json(posts) )
+  .catch(() => res.json([]) )
+}
+
 exports.viewCreateScreen = (req, res) => {
     if (req.session.user) res.render('create-post')
     else res.render('home-guest')
   }
 
-exports.create =  (req, res) => {
+
+  exports.create =  (req, res) => {
   let post = new Post(req.body, req.session.user._id)
   post.create()
   .then(newId => {
