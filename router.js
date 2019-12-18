@@ -12,7 +12,7 @@ router.post('/login', userController.login)
 router.post('/logout', userController.logout)
 
 //Profile relaed routes
-router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen)
+router.get('/profile/:username', userController.ifUserExists, userController.sharedProfileData, userController.profilePostsScreen)
 
 // Post related routes
 

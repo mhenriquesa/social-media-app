@@ -1,6 +1,6 @@
 const usersCollection = require('../db').db().collection('users')
 const followsCollection = require('../db').db().collection('follows')
-const ObjectID = require('mongodb').ObjectID
+const ObjectId = require('mongodb').ObjectID
 
 let Follow = function (followedUsername, authorId) {
   this.followedUsername = followedUsername
@@ -13,7 +13,7 @@ Follow.prototype.create = function() {
     this.cleanUp()
     await this.validate()
     if (!this.errors.length) {
-       await followsCollection.insertOne({followedId: this.followedId, authorId: new ObjectID(this.authorId._id)})
+       await followsCollection.insertOne({followedId: this.followedId, authorId: new ObjectId(this.authorId)})
        resolve()
     } else {
       reject(this.errors)
@@ -34,5 +34,13 @@ Follow.prototype.validate = async function() {
   }
 }
 
+Follow.isVisitorFollowing = async function (followedId, visitorId) {
+  let followDoc = await followsCollection.findOne({followedId: followedId, authorId: new ObjectId(visitorId)})
+  if (followDoc) {
+    return true
+  } else {
+    return false
+  }
+}
 
 module.exports = Follow
