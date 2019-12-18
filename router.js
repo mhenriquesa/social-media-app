@@ -1,6 +1,7 @@
 const express = require('express')
 const userController = require('./controllers/userController')
 const postController = require('./controllers/postController')
+const followController = require('./controllers/followController')
 //---------------------------------------
 const router = express.Router()
 
@@ -14,6 +15,7 @@ router.post('/logout', userController.logout)
 router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen)
 
 // Post related routes
+
 router.post('/search', postController.search)
 router.get('/post/:id', postController.viewSingle)
 router.get('/create-post', userController.userMustBeLoggedIn, postController.viewCreateScreen)
@@ -22,6 +24,8 @@ router.get('/post/:id/edit', userController.userMustBeLoggedIn, postController.v
 router.post('/post/:id/edit', userController.userMustBeLoggedIn, postController.edit)
 router.post('/post/:id/delete', userController.userMustBeLoggedIn, postController.delete)
 
+//Follow related 
+router.post('/addFollow/:username', userController.userMustBeLoggedIn, followController.addFollow)
 
 //---------------------------------------
 module.exports = router
