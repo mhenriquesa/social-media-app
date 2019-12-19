@@ -3,8 +3,7 @@ const ObjectID = require('mongodb').ObjectID
 const User = require('./User')
 const sanitize = require('sanitize-html')
 
-//----Constructors
-
+//----Constructor
 let Post = function (data, userid, requestedPostId) { 
     this.data = data
     this.errors = []
@@ -13,7 +12,6 @@ let Post = function (data, userid, requestedPostId) {
 }
 
 // ----- Prototypes
-
 Post.prototype.update = function () {
     return new Promise(async (resolve, reject) => {
         //Encontrar o post e testar se o requrente é owner
@@ -116,6 +114,7 @@ Post.delete = function (postIdToDelete, currentUserId) {
     })   
 }
 
+//Returns: posts[0]
 Post.findSingleById = (id, visitorId) => {
     return new Promise(async (resolve, reject) => {
         if (typeof(id) != 'string' || !ObjectID.isValid(id)) {
@@ -129,11 +128,13 @@ Post.findSingleById = (id, visitorId) => {
     })
 }
 
+//Retruns: posts
 Post.findByAuthorId = authorId => {
     let matchParameters = [ {$match: {author: authorId}}, {$sort: {createdDate: -1}} ]
     return Post.reusablePostQuery(matchParameters)
 }
 
+// Returns informações  sobre os posts segundo a busca
 Post.reusablePostQuery = (uniqueOperations, visitorId) => {
     return new Promise(async (resolve, reject) => {
         let aggOperations = uniqueOperations.concat([
@@ -156,17 +157,23 @@ Post.reusablePostQuery = (uniqueOperations, visitorId) => {
 
         //Clean UP author property in each post object
         posts = posts.map( post => {
-            post.isVisitorOwner = post.authorId.equals(visitorId)
-            post.authorId = undefined //Para esconder a informação do front-end enviada pelo JSON 
-            post.author = {
-                username: post.author.username,
-                avatar: new User(post.author, true).avatar
-            }
-            return post
+                    post.isVisitorOwner = post.authorId.equals(visitorId)
+                    post.authorId = undefined //Para esconder a informação do front-end enviada pelo JSON 
+                    post.author = {
+                        username: post.author.username,
+                        avatar: new User(post.author, true).avatar
+                    }
+                    return post
         }) 
         resolve(posts)
     })
 }
 
+Post.countPostsByAuthor = function (id) {
+    return new Promise(async (resolve,reject) => {
+        let postCount = await postsCollection.countDocuments({author: id})
+        resolve(postCount)
+    })
+}
 
 module.exports = Post

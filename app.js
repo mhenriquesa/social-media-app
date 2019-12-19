@@ -43,7 +43,8 @@ app.use( (req, res, next) => {
     res.locals.success = req.flash('success')
 
     // ID do usuario atual disponivel no req object
-    if (req.session.user) {req.visitorId = req.session.user._id} else {req.visitorId = 0}
+    if (req.session.user) req.visitorId = req.session.user._id 
+    else req.visitorId = 0
 
     // Permite os EJS templates ter acesso as informações do user quando logado
     res.locals.user = req.session.user

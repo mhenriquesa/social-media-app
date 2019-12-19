@@ -11,6 +11,11 @@ exports.viewCreateScreen = (req, res) => {
     else res.render('home-guest')
   }
 
+  exports.viewTeste = (req, res) => {
+    console.log(req)
+    res.send('Caminho mais curto')
+  }
+
 
   exports.create =  (req, res) => {
   let post = new Post(req.body, req.session.user._id)
@@ -29,6 +34,7 @@ exports.viewSingle = async  (req, res) => {
   // findSingleById vai retornar uma promise, usar try catch permite definir o que acontece nos 2 cenarios
   try {
     let post = await Post.findSingleById(req.params.id, req.visitorId )
+    console.log(post)
     res.render('single-post-screen', {post: post})
   } catch {
     res.render('404')
@@ -37,8 +43,9 @@ exports.viewSingle = async  (req, res) => {
 
 exports.viewEditScreen = async (req,res) => {
   try {
-    let post = await Post.findSingleById(req.params.id)
-    if (post.authorId == req.visitorId) res.render('edit-post', {post: post})        
+    let post = await Post.findSingleById(req.params.id, req.visitorId)
+    console.log(post)
+    if (post.isVisitorOwner) res.render('edit-post', {post: post})        
     else {
       req.flash('errors', 'Você não tem permissão para a ação')
       req.session.save(() => res.redirect('/'))
