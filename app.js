@@ -8,6 +8,7 @@ const sanitize = require('sanitize-html');
 
 const app = express();
 
+//Config Sessions on DB
 let sessionOptions = session({
   secret: 'woeifowiejf',
   store: new MongoStore({ client: require('./db') }),
