@@ -35,7 +35,7 @@ User.prototype.login = function () {
   });
 };
 
-User.prototype.register = async function () {
+User.prototype.register = function () {
   return new Promise(async (resolve, reject) => {
     // Step 1: Validate data
     this.cleanUp();
