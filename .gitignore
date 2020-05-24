@@ -1,4 +1,5 @@
 node_modules
 NotasDasAulas
 .env
+.prettierignore
 

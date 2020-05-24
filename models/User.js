@@ -37,11 +37,8 @@ User.prototype.login = function () {
 
 User.prototype.register = function () {
   return new Promise(async (resolve, reject) => {
-    // Step 1: Validate data
     this.cleanUp();
     await this.validate();
-    //Step 2: Only if there are no validatation erros
-    // then save the user data into a database
     if (!this.errors.length) {
       // Hash user password
       let salt = bcrypt.genSaltSync(10);
