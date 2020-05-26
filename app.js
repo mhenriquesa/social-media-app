@@ -33,22 +33,7 @@ app.use((req, res, next) => {
   //Make our markdown available from all ejs templates
   res.locals.filterUserHTML = content =>
     sanitize(markdown(content), {
-      allowedTags: [
-        'p',
-        'br',
-        'ul',
-        'ol',
-        'li',
-        'strong',
-        'i',
-        'em',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-      ],
+      allowedTags: ['p','br','ul', 'ol','li', 'strong','i', 'em', 'h1', 'h2', 'h3', 'h4', 'h5','h6',],
       allowedAttributes: {},
     });
 

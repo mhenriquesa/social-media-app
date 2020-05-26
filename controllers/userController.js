@@ -139,10 +139,7 @@ exports.sharedProfileData = async function (req, res, next) {
 
   //Se o usuario estiver logado, isFollowing vai depender do teste isVisitorFollowing
   if (req.session.user)
-    isFollowing = await Follow.isVisitorFollowing(
-      req.profileUser._id,
-      req.visitorId
-    );
+    isFollowing = await Follow.isVisitorFollowing(req.profileUser._id, req.visitorId);
 
   //Cria uma nova property no req Object do express definindo valor segundo isFollowing
   req.isFollowing = isFollowing;
