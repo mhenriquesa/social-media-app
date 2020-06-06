@@ -50,7 +50,6 @@ exports.register = (req, res) => {
 exports.profilePostsScreen = function (req, res) {
   Post.findByAuthorId(req.profileUser._id) //Returns posts
     .then(posts => {
-      console.log(posts);
       res.render('profile', {
         counts: {
           postCount: req.postCount,
@@ -108,21 +107,14 @@ exports.profileFollowingScreen = async (req, res) => {
     res.render('404');
   }
 };
-
-//Busca username e retorna info sobre.
-//Returns: req.profileUser {_id , username , avatar}
 exports.ifUserExists = (req, res, next) => {
   User.findByUsername(req.params.username)
     .then(userDocument => {
       req.profileUser = userDocument;
-      console.log('ifUserExists() returns req.profileUser ', req.profileUser);
       next();
-      //
     })
     .catch(() => res.render('404'));
 };
-
-//Teste se o visitante está logado
 exports.userMustBeLoggedIn = (req, res, next) => {
   if (req.session.user) next();
   else {
@@ -130,9 +122,6 @@ exports.userMustBeLoggedIn = (req, res, next) => {
     req.session.save(() => res.redirect('/'));
   }
 };
-
-// Testa se o visitante segue o profile visitado e se o visitante está no seu proprio profile
-// Returns: req.isFollowing ; req.isItYourOwnPage ; Posts, followers, following counters
 exports.sharedProfileData = async function (req, res, next) {
   // By default, ninguem segue ninguem
   let isFollowing = false;

@@ -51,8 +51,6 @@ Post.prototype.create = function () {
     this.cleanUp();
     this.validate();
     if (!this.errors.length) {
-      //insertOne returns a Promise. Podemos usar .then().catch()
-      //para assegurar conclusao do DB
       postsCollection
         .insertOne(this.data)
         .then(info => {
@@ -71,10 +69,10 @@ Post.prototype.create = function () {
 Post.prototype.cleanUp = function () {
   if (typeof this.data.title != 'string') {
     this.data.title = '';
-  } //Somente Strings
+  }
   if (typeof this.data.body != 'string') {
     this.data.body = '';
-  } //Somente Strings
+  }
 
   // Get rid of any bogus propeties
   this.data = {
@@ -94,7 +92,6 @@ Post.prototype.cleanUp = function () {
 Post.prototype.validate = function () {
   if (this.data.title == '') this.errors.push('O post precisa de um título');
   if (this.data.body == '') this.errors.push('O post precisa de conteúdo');
-  // ATENÇÃO: INSERIR PROTEÇÃO CONTRA HTML SCRIPTS (todoApp)
 };
 
 // ------ Methods
@@ -127,7 +124,6 @@ Post.delete = function (postIdToDelete, currentUserId) {
   });
 };
 
-//Returns: posts[0]
 Post.findSingleById = (id, visitorId) => {
   return new Promise(async (resolve, reject) => {
     if (typeof id != 'string' || !ObjectID.isValid(id)) {
