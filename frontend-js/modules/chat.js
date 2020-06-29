@@ -18,7 +18,7 @@ export default class Chat {
 
   //Nethods
   openConnection() {
-    alert('Openning Conection');
+    this.socket = io();
   }
   showChat() {
     if (!this.openedYet) this.openConnection();
