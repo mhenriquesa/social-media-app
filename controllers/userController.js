@@ -116,6 +116,15 @@ exports.ifUserExists = (req, res, next) => {
     })
     .catch(() => res.render('404'));
 };
+exports.doesUsernameExist = function (req, res) {
+  User.findByUsername(req.body.username)
+    .then(function () {
+      res.json(true);
+    })
+    .catch(function () {
+      res.json(false);
+    });
+};
 exports.userMustBeLoggedIn = (req, res, next) => {
   if (req.session.user) next();
   else {
@@ -155,4 +164,19 @@ exports.sharedProfileData = async function (req, res, next) {
   req.followingCount = followingCount;
 
   next();
+};
+
+exports.doesUsernameExist = function (req, res) {
+  User.findByUsername(req.body.username)
+    .then(function () {
+      res.json(true);
+    })
+    .catch(function () {
+      res.json(false);
+    });
+};
+
+exports.doesEmailExist = async function (req, res) {
+  let emailBool = await User.doesEmailExist(req.body.email);
+  res.json(emailBool);
 };

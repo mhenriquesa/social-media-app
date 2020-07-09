@@ -79,10 +79,7 @@ User.prototype.validate = function () {
   return new Promise(async (resolve, reject) => {
     if (this.data.username == '') this.errors.push('Voce deve ter um username');
 
-    if (
-      this.data.username != '' &&
-      !validator.isAlphanumeric(this.data.username)
-    )
+    if (this.data.username != '' && !validator.isAlphanumeric(this.data.username))
       this.errors.push('Username pode ser somente letras e numeros');
 
     if (!validator.isEmail(this.data.email))
@@ -111,8 +108,7 @@ User.prototype.validate = function () {
       let usernameExists = await usersCollection.findOne({
         username: this.data.username,
       });
-      if (usernameExists)
-        this.errors.push('Username já existe. Tente outro...');
+      if (usernameExists) this.errors.push('Username já existe. Tente outro...');
     }
     // Only if email is valid then check to see if its already taken
     if (validator.isEmail(this.data.email)) {
@@ -147,6 +143,22 @@ User.findByUsername = username => {
         } else reject('Try again later');
       })
       .catch(() => reject('404'));
+  });
+};
+
+User.doesEmailExist = function (email) {
+  return new Promise(async function (resolve, reject) {
+    if (typeof email != 'string') {
+      resolve(false);
+      return;
+    }
+
+    let user = await usersCollection.findOne({ email: email });
+    if (user) {
+      resolve(true);
+    } else {
+      resolve(false);
+    }
   });
 };
 

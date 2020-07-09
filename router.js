@@ -11,6 +11,10 @@ router.post('/register', userController.register)
 router.post('/login', userController.login)
 router.post('/logout', userController.logout)
 
+//Registration form
+router.post('/doesUsernameExist', userController.doesUsernameExist)
+router.post('/doesEmailExist', userController.doesEmailExist)
+
 //Profile relaed routes
 router.get('/profile/:username', userController.ifUserExists, 
 userController.sharedProfileData, userController.profilePostsScreen)
