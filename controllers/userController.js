@@ -62,6 +62,7 @@ exports.profilePostsScreen = function (req, res) {
         profileAvatar: req.profileUser.avatar,
         isFollowing: req.isFollowing,
         isItYourOwnPage: req.isItYourOwnPage,
+        title: `Profile for ${req.profileUser.username}`,
       });
     })
     .catch(() => res.render('404'));
