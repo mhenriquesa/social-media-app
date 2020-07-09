@@ -66,9 +66,9 @@ export default class Chat {
       'beforeend',
       `
     <div class="chat-other">
-    <a href="#"><img class="avatar-tiny" src="${data.avatar}"></a>
+    <a href="/profile/${data.username}"><img class="avatar-tiny" src="${data.avatar}"></a>
     <div class="chat-message"><div class="chat-message-inner">
-      <a href="#"><strong>${data.username}:</strong></a>
+      <a href="/profile/${data.username}"><strong>${data.username}:</strong></a>
       ${data.message}
     </div></div>
   </div>
@@ -83,6 +83,7 @@ export default class Chat {
     if (!this.openedYet) this.openConnection();
     this.openedYet = true;
     this.chatWrapper.classList.add('chat--visible');
+    this.chatField.focus();
   }
 
   hideChat() {

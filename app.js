@@ -70,9 +70,13 @@ io.on('connection', (socket) => {
     // send event called 'welcome' passing session user informations
     socket.emit('welcome', {username: user.username, avatar: user.avatar})
 
-    socket.on('chatMessageFromBrowser', (data) => {
-      socket.broadcast.emit('chatMessageFromServer', {message: data.message, username: user.username, avatar: user.avatar})
-    })
+    socket.on('chatMessageFromBrowser', function (data) {
+      socket.broadcast.emit('chatMessageFromServer', {
+        message: sanitize(data.message, { allowedTags: [], allowedAttributes: {} }),
+        username: user.username,
+        avatar: user.avatar,
+      });
+    });
   }
 })
 
