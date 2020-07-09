@@ -55,7 +55,6 @@ app.use('/', router);
 
 const server = require('http').createServer(app);
 
-//Start socket.io
 const io = require('socket.io')(server);
 
 //Permite adicionar informações sobre a session ao socket
@@ -63,6 +62,7 @@ io.use(function (socket, next) {
   sessionOptions(socket.request, socket.request.res, next)
 })
 
+//Start socket.io
 io.on('connection', (socket) => {
   if(socket.request.session.user) {
     let user = socket.request.session.user

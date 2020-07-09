@@ -17,12 +17,13 @@ export default class Chat {
 
   // Events
   events() {
+    this.openIcon.addEventListener('click', () => this.showChat());
+    this.closeIcon.addEventListener('click', () => this.hideChat());
+
     this.chatForm.addEventListener('submit', e => {
       e.preventDefault();
       this.sendMessageToServer();
     });
-    this.openIcon.addEventListener('click', () => this.showChat());
-    this.closeIcon.addEventListener('click', () => this.hideChat());
   }
 
   //Nethods
@@ -41,7 +42,9 @@ export default class Chat {
       </div>
     `)
     );
-    console.log(this.chatField.value);
+
+    // user experience improvement
+    this.chatLog.scrollTop = this.chatLog.scrollHeight;
     this.chatField.value = '';
     this.chatField.focus();
   }
@@ -59,7 +62,6 @@ export default class Chat {
   }
 
   displayMessageFromServer(data) {
-    console.log(data);
     this.chatLog.insertAdjacentHTML(
       'beforeend',
       `
@@ -72,6 +74,9 @@ export default class Chat {
   </div>
     `
     );
+
+    //user experience improvimnets
+    this.chatLog.scrollTop = this.chatLog.scrollHeight;
   }
 
   showChat() {
