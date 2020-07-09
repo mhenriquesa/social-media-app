@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 export default class Chat {
   constructor() {
     this.openedYet = false;
@@ -26,12 +28,31 @@ export default class Chat {
   //Nethods
   sendMessageToServer() {
     this.socket.emit('chatMessageFromBrowser', { message: this.chatField.value });
+    this.chatLog.insertAdjacentHTML(
+      'beforeend',
+      DOMPurify.sanitize(`
+    <div class="chat-self">
+        <div class="chat-message">
+          <div class="chat-message-inner">
+            ${this.chatField.value}
+          </div>
+        </div>
+        <img class="chat-avatar avatar-tiny" src="${this.avatar}">
+      </div>
+    `)
+    );
     console.log(this.chatField.value);
     this.chatField.value = '';
     this.chatField.focus();
   }
   openConnection() {
     this.socket = io();
+
+    this.socket.on('welcome', data => {
+      this.username = data.username;
+      this.avatar = data.avatar;
+    });
+
     this.socket.on('chatMessageFromServer', data => {
       this.displayMessageFromServer(data);
     });
