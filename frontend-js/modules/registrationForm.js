@@ -25,9 +25,9 @@ export default class RegistrationForm {
     this.email.addEventListener('keyup', () => {
       this.isDifferent(this.email, this.emailHandler);
     });
-    // this.password.addEventListener('keyup', () => {
-    //   this.isDifferent(this.password, this.passwordHandler);
-    // });
+    this.password.addEventListener('keyup', () => {
+      this.isDifferent(this.password, this.passwordHandler);
+    });
     // this.username.addEventListener('blur', () => {
     //   this.isDifferent(this.username, this.usernameHandler);
     // });
@@ -43,6 +43,29 @@ export default class RegistrationForm {
   isDifferent(el, handler) {
     if (el.previousValue != el.value) handler.call(this);
     el.previousValue = el.value;
+  }
+
+  passwordHandler() {
+    this.password.errors = false;
+    this.passwordImmediately();
+    clearTimeout(this.password.timer);
+    this.password.timer = setTimeout(() => this.passwordAfterDelay(), 800);
+  }
+
+  passwordImmediately() {
+    if (this.password.value.length > 50) {
+      this.showValidationError(this.password, 'Password cannot exceed 50 characters.');
+    }
+
+    if (!this.password.errors) {
+      this.hideValidationError(this.password);
+    }
+  }
+
+  passwordAfterDelay() {
+    if (this.password.value.length < 12) {
+      this.showValidationError(this.password, 'Password must be at least 12 characters.');
+    }
   }
 
   emailHandler() {
@@ -85,10 +108,7 @@ export default class RegistrationForm {
 
   usernameImmediately() {
     if (this.username.value != '' && !/^([a-zA-Z0-9]+)$/.test(this.username.value)) {
-      this.showValidationError(
-        this.username,
-        'Username can only contain letters and numbers.'
-      );
+      this.showValidationError(this.username, 'only letters and numbers.');
     }
 
     if (this.username.value.length > 30) {
