@@ -5,6 +5,7 @@ const MongoStore = require('connect-mongo')(session);
 const flash = require('connect-flash');
 const markdown = require('marked');
 const sanitize = require('sanitize-html');
+const csrf = require('csurf')
 
 const app = express();
 
@@ -26,9 +27,11 @@ app.set('view engine', 'ejs');
 
 app.use(sessionOptions);
 app.use(flash());
-app.use(express.urlencoded({ extended: false })); // acesso a dados do user pelo body do elemento
+
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(express.static('public')); //permitir acesso a pasta public
+app.use(express.static('public'));
+
 app.use((req, res, next) => {
   //Make our markdown available from all ejs templates
   res.locals.filterUserHTML = content =>
@@ -51,7 +54,30 @@ app.use((req, res, next) => {
   next();
 });
 
+//Protection against cross-site request forgery attcks
+app.use(csrf())
+
+app.use(function(req, res, next) {
+  res.locals.csrfToken = req.csrfToken()
+  next()
+})
+//-----------
+
+//Routers
 app.use('/', router);
+
+// Protection against cross-site request forgery attacks
+app.use(function(err, req, res, next) {
+  if (err) {
+    if (err.code == "EBADCSRFTOKEN") {
+      req.flash('errors', "Cross site request forgery detected.")
+      req.session.save(() => res.redirect('/'))
+    } else {
+      res.render("404")
+    }
+  }
+})
+//----------------------
 
 const server = require('http').createServer(app);
 
