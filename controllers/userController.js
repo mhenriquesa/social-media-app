@@ -1,6 +1,17 @@
 const User = require('../models/User');
 const Follow = require('../models/Follow');
 const Post = require('../models/Posts');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+exports.apiMustBeLoggedIn = function (req, res, next) {
+  try {
+    req.apiUser = jwt.verify(req.body.token, process.env.JWTSECRET);
+    next();
+  } catch {
+    res.json('Sorry, you must provide a valid token.');
+  }
+};
 
 exports.home = async (req, res) => {
   if (req.session.user) {
@@ -32,7 +43,9 @@ exports.apiLogin = function (req, res) {
   user
     .login()
     .then(function (result) {
-      res.json('Good job, that is a real username and password.');
+      res.json(
+        jwt.sign({ _id: user.data._id }, process.env.JWTSECRET, { expiresIn: '7d' })
+      );
     })
     .catch(function (e) {
       res.json('Sorry, your values are not correct.');

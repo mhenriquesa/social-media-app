@@ -1,5 +1,17 @@
 let Post = require('../models/Posts');
 
+exports.apiCreate = function (req, res) {
+  let post = new Post(req.body, req.apiUser._id);
+  post
+    .create()
+    .then(function (newId) {
+      res.json('Congrats.');
+    })
+    .catch(function (errors) {
+      res.json(errors);
+    });
+};
+
 exports.create = (req, res) => {
   let post = new Post(req.body, req.session.user._id);
   post
