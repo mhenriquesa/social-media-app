@@ -1,112 +1,125 @@
-import axios from 'axios'
-import domPurify from 'dompurify'
-
+import axios from 'axios';
+import domPurify from 'dompurify';
 
 export default class Search {
+  constructor() {
+    this.injectHTML();
 
-    // 1. - Select DOM elements and keep track of any useful data
-    constructor() {
-      this.injectHTML()
-      
-      this.headerSearchIcon = document.querySelector('.header-search-icon')
-      this.closeLiveSearch = document.querySelector('.close-live-search')
-      this.overlay = document.querySelector('.search-overlay')
-      this.resultsArea = document.querySelector('.live-search-results')
-      this.inputField = document.querySelector('#live-search-field')
-      this.loaderIcon = document.querySelector('.circle-loader')
-      this.typingWaitTimer
-      this.previousValue = ''
+    this._csrf = document.querySelector('[name="_csrf"]').value;
+    this.headerSearchIcon = document.querySelector('.header-search-icon');
+    this.closeLiveSearch = document.querySelector('.close-live-search');
+    this.overlay = document.querySelector('.search-overlay');
+    this.resultsArea = document.querySelector('.live-search-results');
+    this.inputField = document.querySelector('#live-search-field');
+    this.loaderIcon = document.querySelector('.circle-loader');
+    this.typingWaitTimer;
+    this.previousValue = '';
 
-      this.events()
-    } // ---- /contructor()
+    this.events();
+  }
 
-    // 2. Events
-    events() {
-      this.headerSearchIcon.addEventListener('click', e => {
-          e.preventDefault() //Evita a ação padrão do link 'href'
-          this.openOverlay()
+  // 2. Events
+  events() {
+    this.headerSearchIcon.addEventListener('click', e => {
+      e.preventDefault(); //Evita a ação padrão do link 'href'
+      this.openOverlay();
+    });
+    this.closeLiveSearch.addEventListener('click', () => this.closeOverlay());
+    this.inputField.addEventListener('keyup', () => this.keyPressHandler());
+  } // /Events()
+
+  // 3. Methods
+
+  keyPressHandler() {
+    let value = this.inputField.value;
+
+    if (value == '') {
+      clearTimeout(this.typingWaitTimer);
+      this.hideLoaderIcon();
+      this.hideResultsArea();
+    }
+
+    if (value != '' && value != this.previousValue) {
+      clearTimeout(this.typingWaitTimer);
+      this.showLoaderIcon();
+      this.hideResultsArea();
+      this.typingWaitTimer = setTimeout(() => this.sendRequest(), 1000);
+    }
+
+    this.previousValue = value;
+  } // /keyPressHandler()
+
+  sendRequest() {
+    axios
+      .post('/search', { _csrf: this._csrf, searchTerm: this.inputField.value })
+      .then(response => {
+        console.log(response.data);
+        this.renderResultHTML(response.data);
       })
-      this.closeLiveSearch.addEventListener('click', () => this.closeOverlay() )
-      this.inputField.addEventListener('keyup', () => this.keyPressHandler())
-    } // /Events()
-    
-    // 3. Methods
-    
-    keyPressHandler() {
-      let value = this.inputField.value
-      
-      if (value == "") {
-        clearTimeout(this.typingWaitTimer)
-        this.hideLoaderIcon()
-        this.hideResultsArea()
-      }
+      .catch(() => alert('Hello, failed the request'));
+  }
 
-      if (value != "" && value != this.previousValue) {
-        clearTimeout(this.typingWaitTimer)
-        this.showLoaderIcon()
-        this.hideResultsArea()
-        this.typingWaitTimer = setTimeout(() => this.sendRequest(), 1000)
-      }
+  renderResultHTML(posts) {
+    if (posts.length) {
+      console.log(posts.length);
+      this.resultsArea.innerHTML = domPurify.sanitize(`<div class="list-group shadow-sm">
+        <div class="list-group-item active"><strong>Resultado da busca</strong> (${
+          posts.length > 1 ? ` ${posts.length} itens encontrados` : ' 1 item encontrado '
+        } ) </div>
+        ${posts
+          .map(post => {
+            let postDate = new Date(post.createdDate);
+            return `<a href="/post/${
+              post._id
+            }" class="list-group-item list-group-item-action">
+          <img class="avatar-tiny" src="${post.author.avatar}"> <strong>${
+              post.title
+            }</strong>
+          <span class="text-muted small">Por ${
+            post.author.username
+          } em ${postDate.getDate()}/${
+              postDate.getMonth() + 1
+            }/${postDate.getFullYear()} </span>
+        </a>`;
+          })
+          .join('')}
+      </div>`);
+    } else {
+      this.resultsArea.innerHTML = `<p class='alert alert-danger text-center shadow-sm' >Sinto muito. Não encontramos nenhum resultado para sua busca</p>`;
+    }
+    this.hideLoaderIcon();
+    this.showResultsArea();
+  }
 
-      this.previousValue = value
-    } // /keyPressHandler()
+  showResultsArea() {
+    this.resultsArea.classList.add('live-search-results--visible');
+  }
 
-    sendRequest() {
-      axios.post('/search', {searchTerm: this.inputField.value})
-      .then( response => { 
-        console.log(response.data)
-        this.renderResultHTML(response.data)
-      })      
-      .catch( () => alert('Hello, failed the request'))
-    }
-    
-    renderResultHTML(posts) {
-      if (posts.length) {
-        console.log(posts.length)
-        this.resultsArea.innerHTML = domPurify.sanitize(`<div class="list-group shadow-sm">
-        <div class="list-group-item active"><strong>Resultado da busca</strong> (${ posts.length > 1 ? ` ${posts.length} itens encontrados` : ' 1 item encontrado ' } ) </div>
-        ${posts.map( post=> {
-          let postDate = new Date(post.createdDate)
-          return `<a href="/post/${post._id}" class="list-group-item list-group-item-action">
-          <img class="avatar-tiny" src="${post.author.avatar}"> <strong>${post.title}</strong>
-          <span class="text-muted small">Por ${post.author.username} em ${postDate.getDate()}/${postDate.getMonth() + 1}/${postDate.getFullYear()} </span>
-        </a>`
-        }).join('')}
-      </div>`)    
-      } else {
-        this.resultsArea.innerHTML = `<p class='alert alert-danger text-center shadow-sm' >Sinto muito. Não encontramos nenhum resultado para sua busca</p>`
-      }
-      this.hideLoaderIcon()
-      this.showResultsArea()
-    }
+  hideResultsArea() {
+    this.resultsArea.classList.remove('live-search-results--visible');
+  }
 
-    showResultsArea() {
-      this.resultsArea.classList.add('live-search-results--visible')
-    }
-    
-    hideResultsArea() {
-      this.resultsArea.classList.remove('live-search-results--visible')
-    }
-    
-    hideLoaderIcon() {
-      this.loaderIcon.classList.remove('circle-loader--visible')
-    }
+  hideLoaderIcon() {
+    this.loaderIcon.classList.remove('circle-loader--visible');
+  }
 
-    showLoaderIcon() {
-      this.loaderIcon.classList.add('circle-loader--visible')
-    }
+  showLoaderIcon() {
+    this.loaderIcon.classList.add('circle-loader--visible');
+  }
 
-    openOverlay() {
-      this.overlay.classList.add('search-overlay--visible')
-      setTimeout( () => this.inputField.focus(), 50)
-    }
+  openOverlay() {
+    this.overlay.classList.add('search-overlay--visible');
+    setTimeout(() => this.inputField.focus(), 50);
+  }
 
-    closeOverlay() {
-        this.overlay.classList.remove('search-overlay--visible')
-    }
+  closeOverlay() {
+    this.overlay.classList.remove('search-overlay--visible');
+  }
 
-    injectHTML() {
-        document.body.insertAdjacentHTML("beforeend", `<!-- search feature begins -->
+  injectHTML() {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      `<!-- search feature begins -->
         <div class="search-overlay ">
           <div class="search-overlay-top shadow-sm">
             <div class="container container--narrow">
@@ -123,7 +136,7 @@ export default class Search {
             </div>
           </div>
         </div>
-        <!-- search feature end -->`)
-    }
-
+        <!-- search feature end -->`
+    );
+  }
 }
