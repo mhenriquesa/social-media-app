@@ -4,7 +4,8 @@
   "description": " ",
   "main": "app.js",
   "scripts": {
-    "start": "start nodemon db --ignore frontend-js --ignore public/ && start webpack --watch"
+    "start": "start nodemon db --ignore frontend-js --ignore public/ && start webpack --watch",
+    "watchlinux": "nodemon db --ignore frontend-js --ignore public/ & webpack --watch"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "kind-of": "^6.0.3",
+    "lodash": "^4.17.19",
     "marked": "^1.1.0",
     "md5": "^2.2.1",
     "minimist": "^1.2.5",
