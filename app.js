@@ -6,8 +6,14 @@ const flash = require('connect-flash');
 const markdown = require('marked');
 const sanitize = require('sanitize-html');
 const csrf = require('csurf')
-
+const api = require('./router.api');
 const app = express();
+
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+//API
+app.use('/api' , api)
 
 //Config Sessions on DB
 let sessionOptions = session({
@@ -28,8 +34,7 @@ app.set('view engine', 'ejs');
 app.use(sessionOptions);
 app.use(flash());
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+
 app.use(express.static('public'));
 
 app.use((req, res, next) => {

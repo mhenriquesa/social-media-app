@@ -26,6 +26,19 @@ exports.login = (req, res) => {
       req.session.save(() => res.redirect('/'));
     });
 };
+
+exports.apiLogin = function (req, res) {
+  let user = new User(req.body);
+  user
+    .login()
+    .then(function (result) {
+      res.json('Good job, that is a real username and password.');
+    })
+    .catch(function (e) {
+      res.json('Sorry, your values are not correct.');
+    });
+};
+
 exports.logout = (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 };
