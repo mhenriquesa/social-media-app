@@ -1,5 +1,15 @@
 let Post = require('../models/Posts');
 
+exports.apiDelete = function (req, res) {
+  Post.delete(req.params.id, req.apiUser._id)
+    .then(() => {
+      res.json('Success');
+    })
+    .catch(() => {
+      res.json('You do not have permission to perform that action.');
+    });
+};
+
 exports.apiCreate = function (req, res) {
   let post = new Post(req.body, req.apiUser._id);
   post
