@@ -29,7 +29,7 @@
     "jsonwebtoken": "^8.5.1",
     "kind-of": "^6.0.3",
     "lodash": "^4.17.19",
-    "marked": "^1.1.0",
+    "marked": "^4.0.10",
     "md5": "^2.2.1",
     "minimist": "^1.2.5",
     "mongodb": "^3.5.9",
